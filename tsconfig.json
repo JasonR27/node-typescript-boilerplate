@@ -1,23 +1,36 @@
 {
   "compilerOptions": {
-    "target": "es2022",
-    "module": "node16",
-    "lib": ["ES2022", "DOM"],
-    "moduleResolution": "node16",
-    "rootDir": ".",
-    "outDir": "build",
+    "target": "esnext",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": false,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "importHelpers": true,
-    "alwaysStrict": true,
-    "sourceMap": true,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitAny": false,
-    "noImplicitThis": false,
-    "strictNullChecks": false,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types",
+      "../types"
+    ]
   },
-  "include": ["src", "__tests__"]
+  "include": [
+    "src",
+    "types",
+    "./*.js",
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "./prisma/seed.ts",
+  ]
 }

@@ -1,0 +1,129 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["auth", "public"]
+}
+
+model Users {
+  id               String     @id @default(uuid())
+  name             String
+  email            String     @unique
+  username         String     @unique
+  passwordHash     String
+  role             String
+  mainProfileId    String?    @unique
+  mainProfile      Profiles?  @relation(fields: [mainProfileId], references: [id], name: "MainProfile")
+  currentProfileId String?    @unique
+  currentProfile   Profiles?  @relation(fields: [currentProfileId], references: [id], name: "CurrentProfile")
+  posts            Posts[]
+  comments         Comments[]
+  likes            Likes[]
+  profiles         Profiles[] @relation(name: "UserProfiles")
+
+  @@schema("auth")
+}
+
+model Profiles {
+  id                   String     @id @default(uuid())
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+  userId               String
+  username             String
+  website              String
+  company              String
+  authorEmail          String
+  isPublic             Boolean    @default(false)
+  programmingLanguages String[]
+  likes                Likes[]
+  picture              Picture?
+  posts                Posts[]
+  comments             Comments[]
+  user                 Users      @relation(fields: [userId], references: [id], name: "UserProfiles")
+  mainUser             Users?     @relation(name: "MainProfile")
+  currentUser          Users?     @relation(name: "CurrentProfile")
+
+  // directional Relationships
+  friends    Profiles[] @relation(name: "ProfileFriends")
+  followedBy Profiles[] @relation(name: "ProfileFollowers")
+  following  Profiles[] @relation(name: "ProfileFollowing")
+
+  // Prisma requires a corresponding field in the related model to create a many-to-many relationship
+  ProfileFrs  Profiles[] @relation(name: "ProfileFriends")
+  ProfileFlBy Profiles[] @relation(name: "ProfileFollowers")
+  ProfileFls  Profiles[] @relation(name: "ProfileFollowing")
+
+  @@schema("public")
+}
+
+model Picture {
+  id        String   @id @default(uuid())
+  avatarUrl String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  profileId String   @unique
+  profile   Profiles @relation(fields: [profileId], references: [id])
+
+  @@schema("public")
+}
+
+model Posts {
+  id        String     @id @default(uuid())
+  userId    String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  title     String
+  content   String?
+  published Boolean    @default(false)
+  viewCount Int
+  profileId String?
+  comments  Comments[] @relation(name: "PostComments")
+  likes     Likes[]
+  profile   Profiles?  @relation(fields: [profileId], references: [id])
+  user      Users      @relation(fields: [userId], references: [id])
+
+  @@schema("public")
+}
+
+model Comments {
+  id               String     @id @default(uuid())
+  profileId        String?
+  profile          Profiles?  @relation(fields: [profileId], references: [id])
+  postId           String?
+  commentId        String?
+  userId           String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  comments         Comments[] @relation(name: "CommentComments")
+  profileName      String?
+  content          String?
+  img              String?
+  audio            String?
+  file             String?
+  commentHierarchy Comments?  @relation(fields: [commentId], references: [id], name: "CommentComments")
+  post             Posts?     @relation(fields: [postId], references: [id], name: "PostComments")
+  user             Users?      @relation(fields: [userId], references: [id])
+  likes            Likes[]
+
+  @@schema("public")
+}
+
+model Likes {
+  id        String    @id @default(uuid())
+  postId    String?
+  commentId String?
+  userId    String
+  profileId String
+  comment   Comments? @relation(fields: [commentId], references: [id])
+  post      Posts?    @relation(fields: [postId], references: [id])
+  profile   Profiles  @relation(fields: [profileId], references: [id])
+  user      Users     @relation(fields: [userId], references: [id])
+
+  @@unique([profileId, postId]) // Ensures that the same profile cannot like the same post more than once 
+  @@unique([profileId, commentId]) // Ensures that the same profile cannot like the same comment more than once
+  @@schema("public")
+}

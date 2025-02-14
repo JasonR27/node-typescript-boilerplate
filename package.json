@@ -1,31 +1,39 @@
 {
-  "name": "node-typescript-boilerplate",
+  "name": "Node-Prisma-Postgress Backend",
   "version": "0.0.0",
-  "description": "Minimalistic boilerplate to quick-start Node.js development in TypeScript.",
+  "description": "Node js api with prisma ORM and a PostgreSQL database",
   "type": "module",
   "engines": {
     "node": ">= 22.11 < 23"
   },
   "devDependencies": {
     "@eslint/js": "~9.17",
+    "@prisma/client": "^6.3.1",
+    "@types/bcrypt": "^5.0.2",
+    "@types/dotenv": "^6.1.1",
     "@types/eslint__js": "~8.42",
-    "@types/node": "~20",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.8",
+    "@types/node": "^20.17.17",
     "@typescript-eslint/parser": "~8.19",
     "@vitest/coverage-v8": "~2.1",
     "@vitest/eslint-plugin": "~1.1",
-    "eslint-config-prettier": "~9.1",
     "eslint": "~9.17",
+    "eslint-config-prettier": "~9.1",
     "globals": "~15.14",
+    "nodemon": "^3.1.9",
     "prettier": "~3.4",
-    "rimraf": "~6.0",
+    "prisma": "^6.3.1",
     "ts-api-utils": "~2.0",
-    "typescript-eslint": "~8.19",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
     "typescript": "~5.7",
+    "typescript-eslint": "~8.19",
     "vitest": "~2.1"
   },
   "scripts": {
     "start": "node build/src/main.js",
-    "clean": "rimraf coverage build tmp",
+    "dev": "nodemon -x tsx src/index.ts",
     "prebuild": "npm run lint",
     "build": "tsc -p tsconfig.json",
     "build:watch": "tsc -w -p tsconfig.json",
@@ -35,14 +43,26 @@
     "test:coverage": "vitest run unit --config __tests__/vitest.config.ts --coverage.enabled --coverage.all",
     "prettier": "prettier \"{src,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --write",
     "prettier:check": "prettier \"{src,__{tests}__}/**/*.{ts,mts}\" --config .prettierrc --check",
-    "test:watch": "vitest unit"
+    "test:watch": "vitest unit",
+    "db:deploy": "npx prisma migrate deploy && npx prisma generate"
   },
-  "author": "Jakub Synowiec <jsynowiec@users.noreply.github.com>",
+  "author": "Jeison Roblero<Github: JasonR27>, based project on a backend template by Jakub Synowiec <jsynowiec@users.noreply.github.com>",
   "license": "Apache-2.0",
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
     "tslib": "~2.8"
   },
   "volta": {
     "node": "22.12.0"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   }
 }
