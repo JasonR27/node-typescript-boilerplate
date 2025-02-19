@@ -8,7 +8,7 @@ async function main():Promise<void> {
       id: 'user1',
       name: 'Alice',
       email: 'alice@example.com',
-      username: 'alice',
+      userName: 'alice',
       passwordHash: '$2b$12$UEsk.9Pqvq3xH1znnhMc.OeQv3JKclGwuC/5hdo2VhLH1w.o72oyO',
       role: 'user',
     },
@@ -19,7 +19,7 @@ async function main():Promise<void> {
       id: 'user2',
       name: 'Bob',
       email: 'bob@example.com',
-      username: 'bob',
+      userName: 'bob',
       passwordHash: '$2b$12$UEsk.9Pqvq3xH1znnhMc.OeQv3JKclGwuC/5hdo2VhLH1w.o72oyO',
       role: 'user',
     },
@@ -30,7 +30,7 @@ async function main():Promise<void> {
       id: 'a087582f-eaed-4c22-a562-0a9d38235a39',
       name: 'Jeison',
       email: 'bojob3999@gmail.com',
-      username: 'JeisonRoblero',
+      userName: 'JeisonRoblero',
       passwordHash: '$2b$12$UEsk.9Pqvq3xH1znnhMc.OeQv3JKclGwuC/5hdo2VhLH1w.o72oyO',
       role: 'user',
     },
@@ -43,7 +43,7 @@ async function main():Promise<void> {
       createdAt: new Date(),
       updatedAt: new Date(),
       userId: user1.id,
-      username: 'aliceProfile',
+      userName: 'aliceProfile',
       website: 'https://alice.com',
       company: 'Alice Inc.',
       authorEmail: 'alice@example.com',
@@ -58,7 +58,7 @@ async function main():Promise<void> {
       createdAt: new Date(),
       updatedAt: new Date(),
       userId: user2.id,
-      username: 'bobProfile',
+      userName: 'bobProfile',
       website: 'https://bob.com',
       company: 'Bob Ltd.',
       authorEmail: 'bob@example.com',
@@ -72,8 +72,23 @@ async function main():Promise<void> {
       id: '450208d0-865d-4acd-a3e8-a2d1ecbd095f',
       createdAt: new Date(),
       updatedAt: new Date(),
-      userId: user1.id,
-      username: 'jason\'sProfile',
+      userId: user3.id,
+      userName: 'jason\'sProfile',
+      website: 'https://github.com/Jasonr27',
+      company: 'Freelancer',
+      authorEmail: 'bojob3999@gmail.com',
+      isPublic: true,
+      programmingLanguages: ['JavaScript', 'TypeScript'],
+    },
+  });
+
+  const profile4 = await prisma.profiles.create({
+    data: {
+      id: '561319e1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: user3.id,
+      userName: 'jason\'sProfile',
       website: 'https://github.com/Jasonr27',
       company: 'Freelancer',
       authorEmail: 'bojob3999@gmail.com',
@@ -94,6 +109,7 @@ async function main():Promise<void> {
       published: true,
       viewCount: 100,
       profileId: profile1.id,
+      userName: user1.userName,
     },
   });
 
@@ -108,6 +124,7 @@ async function main():Promise<void> {
       published: false,
       viewCount: 50,
       profileId: profile2.id,
+      userName: user2.userName,
     },
   });
 
@@ -122,20 +139,51 @@ async function main():Promise<void> {
       published: true,
       viewCount: 100,
       profileId: profile3.id,
+      userName: user3.userName,
+    },
+  });
+
+  const post4 = await prisma.posts.create({
+    data: {
+      id: 'post4',
+      userId: user3.id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      title: 'Jason\'s Second Post',
+      content: 'This is the content of Jeison\'s second post',
+      published: true,
+      viewCount: 100,
+      profileId: profile3.id,
+      userName: user3.userName,
     },
   });
 
   // Create comments
+  // const comment4 = 
+  await prisma.comments.create({
+    data: {
+      id: 'comment4',
+      postId: post4.id,
+      profileId: profile2.id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      content: 'Nice post, Jason!',
+      userName: profile2.userName,
+    },
+  });
+
+
+
   // const comment1 = 
   await prisma.comments.create({
     data: {
       id: 'comment1',
       postId: post1.id,
-      userId: user2.id,
+      profileId: profile2.id,
       createdAt: new Date(),
       updatedAt: new Date(),
       content: 'Nice post, Alice!',
-      profileName: profile2.username,
+      userName: profile2.userName,
     },
   });
 
@@ -144,11 +192,11 @@ async function main():Promise<void> {
     data: {
       id: 'comment2',
       postId: post2.id,
-      userId: user1.id,
+      profileId: profile1.id,
       createdAt: new Date(),
       updatedAt: new Date(),
       content: 'Thanks, Bob!',
-      profileName: profile1.username,
+      userName: profile1.userName,
     },
   });
 
@@ -157,11 +205,11 @@ async function main():Promise<void> {
     data: {
       id: '73ab0ffa-2f95-45f4-8370-9bee1a08efcf',
       postId: post3.id,
-      userId: user3.id,
+      profileId: profile2.id,
       createdAt: new Date(),
       updatedAt: new Date(),
       content: 'Nice post, Jason!',
-      profileName: profile3.username,
+      userName: profile2.userName,
     },
   });
 

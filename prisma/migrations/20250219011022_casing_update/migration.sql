@@ -6,9 +6,10 @@ CREATE TABLE "auth"."Users" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "username" TEXT NOT NULL,
+    "userName" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
     "role" TEXT NOT NULL,
+    "theme" TEXT,
     "mainProfileId" TEXT,
     "currentProfileId" TEXT,
 
@@ -21,7 +22,7 @@ CREATE TABLE "public"."Profiles" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "userId" TEXT NOT NULL,
-    "username" TEXT NOT NULL,
+    "userName" TEXT NOT NULL,
     "website" TEXT NOT NULL,
     "company" TEXT NOT NULL,
     "authorEmail" TEXT NOT NULL,
@@ -43,6 +44,17 @@ CREATE TABLE "public"."Picture" (
 );
 
 -- CreateTable
+CREATE TABLE "public"."Image" (
+    "id" TEXT NOT NULL,
+    "imageUrl" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "profileId" TEXT NOT NULL,
+
+    CONSTRAINT "Image_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "public"."Posts" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -53,6 +65,7 @@ CREATE TABLE "public"."Posts" (
     "published" BOOLEAN NOT NULL DEFAULT false,
     "viewCount" INTEGER NOT NULL,
     "profileId" TEXT,
+    "userName" TEXT NOT NULL,
 
     CONSTRAINT "Posts_pkey" PRIMARY KEY ("id")
 );
@@ -66,7 +79,7 @@ CREATE TABLE "public"."Comments" (
     "userId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "profileName" TEXT,
+    "userName" TEXT,
     "content" TEXT,
     "img" TEXT,
     "audio" TEXT,
@@ -114,7 +127,7 @@ CREATE TABLE "public"."_ProfileFollowing" (
 CREATE UNIQUE INDEX "Users_email_key" ON "auth"."Users"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Users_username_key" ON "auth"."Users"("username");
+CREATE UNIQUE INDEX "Users_userName_key" ON "auth"."Users"("userName");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Users_mainProfileId_key" ON "auth"."Users"("mainProfileId");
@@ -124,6 +137,9 @@ CREATE UNIQUE INDEX "Users_currentProfileId_key" ON "auth"."Users"("currentProfi
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Picture_profileId_key" ON "public"."Picture"("profileId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Image_profileId_key" ON "public"."Image"("profileId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Likes_profileId_postId_key" ON "public"."Likes"("profileId", "postId");
@@ -151,6 +167,9 @@ ALTER TABLE "public"."Profiles" ADD CONSTRAINT "Profiles_userId_fkey" FOREIGN KE
 
 -- AddForeignKey
 ALTER TABLE "public"."Picture" ADD CONSTRAINT "Picture_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES "public"."Profiles"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."Image" ADD CONSTRAINT "Image_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES "public"."Profiles"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."Posts" ADD CONSTRAINT "Posts_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES "public"."Profiles"("id") ON DELETE SET NULL ON UPDATE CASCADE;

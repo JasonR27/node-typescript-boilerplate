@@ -2,7 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import api from './api';
+import api from './routes';
 // import MessageResponse from './interfaces/MessageResponse';
 // import * as middlewares from './middleware/errors.ts';
 

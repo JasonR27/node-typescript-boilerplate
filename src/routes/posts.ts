@@ -36,6 +36,7 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/profile/current', auth, async (req, res) => {
+  
   const token = req.cookies.token;
 
   let userId;
@@ -87,11 +88,12 @@ router.get('/profile/current', auth, async (req, res) => {
 });
 
 router.post('/create', auth, async (req, res): Promise<any> => {
-  const { title, content } = req.body; // Ensure userId is included in the request body
+  const { title, content, profileName } = req.body; // Ensure userId is included in the request body
+  console.log('title: ', title, 'content :', content, 'profileName :', profileName)
   const token = req.cookies.token;
 
   let userId;
-  // let authorEmail = '';
+  // let authorEmail = ''; 
 
   jwt.verify(token, SECRET_KEY, (err: any, decoded: any) => {
     if (err) {
@@ -121,6 +123,7 @@ router.post('/create', auth, async (req, res): Promise<any> => {
         title,
         viewCount: 0,
         content,
+        profileName,
         profile: {
           connect: { id: profileId },
         },
@@ -131,9 +134,9 @@ router.post('/create', auth, async (req, res): Promise<any> => {
     });
 
     // res.status(200).json(result);
-    return res.status(201).json({ result, redirectUrl: '/profiles/currentprofile/myposts' });
-  } catch (error) {
-    return res.status(400).json({ error: 'Unauthorized' });
+    return res.status(201).json({ redirectUrl: '/profiles/currentprofile/myposts' });
+  } catch (error: any) {
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -167,11 +170,12 @@ router.get('/post/:id', async (req, res) => {
 });
 
 router.delete('/delete/:id', auth, async (req, res): Promise<any> => {
-  const { id } = req.params;
+
+  const { postId } = req.query;
 
   try {
     const post = await prisma.posts.delete({
-      where: { id },
+      where: { id: postId },
     });
 
     return res.status(201).json({ post, redirectUrl: '/profiles/currentprofile/myposts' });

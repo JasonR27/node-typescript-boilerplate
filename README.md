@@ -13,7 +13,7 @@
 - [TypeScript][typescript] [5.7][typescript-5-7]
 - [ESM][esm]
 - [ESLint][eslint] with some initial rules recommendation
-- [Vitest][vitest] for fast unit testing and code coverage
+<!-- - [Vitest][vitest] for fast unit testing and code coverage --> - I'm replacing this with jest
 - Type definitions for Node.js
 - [Prettier][prettier] to enforce consistent code style
 - NPM [scripts](#available-scripts) for common operations

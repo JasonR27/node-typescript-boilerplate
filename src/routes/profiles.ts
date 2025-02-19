@@ -4,6 +4,9 @@ import { auth } from '../middleware/auth';
 import cookieParser from 'cookie-parser';
 // import jwt from 'jsonwebtoken';
 import jwt from 'jsonwebtoken';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 const SECRET_KEY: string = process.env.SUPABASE_JWT_SECRET || 'default_secret_key';
 
@@ -55,7 +58,7 @@ router.get('/findProfilesByUser/', auth, async (req, res) => {
   // console.log('main endpoint user id: ', userId);
 
   try {
-    
+
     const user = await prisma.users.findUnique({
       where: { id: userId },
     });
@@ -72,7 +75,7 @@ router.get('/findProfilesByUser/', auth, async (req, res) => {
       },
     });
 
-    
+
     //   res.json(profile ? [profile] : []); // Return an array, even if it contains a single profile
     //   // res.json(profile);
     // } catch (error) {
@@ -112,6 +115,8 @@ router.post('/create', auth, async (req, res): Promise<any> => {
     // console.log('decoded: ', decoded, ' ', 'decoded.id: ', decoded.id, 'decoded.email: ', decoded.email);
     // next(); // Proceed to the next middleware or route handler
   });
+
+  // add code to check if there is a current profile, and if not add this as current
 
   const { username, website, programmingLanguages, company, mainOptions } = req.body.profile;
 
@@ -271,15 +276,19 @@ router.get('/current', auth, async (req, res) => {
 
 // deletes a profile
 
-router.delete('/delete/:id', auth, async (req, res): Promise<any> => {
-  const { id } = req.params;
+router.delete('/delete', auth, async (req, res): Promise<any> => {
+  console.log('entered delete profile endpoint, using query for params');
+  const { profileId } = req.query;
+  // const profileId = req.body.profileId;
+  console.log('profileId: ', profileId);
 
   try {
-    const profile = await prisma.profiles.delete({
-      where: { id },
+    // const profile = 
+    await prisma.profiles.delete({
+      where: { id: profileId },
     });
 
-    return res.status(201).json({ profile, redirectUrl: '/profiles/myprofiles' });
+    return res.status(201).json({ message: 'Profile deleted succesfully', redirectUrl: '/profiles/myprofiles' });
 
     // return res.status(200).json(profile);
   } catch (error) {
@@ -290,10 +299,10 @@ router.delete('/delete/:id', auth, async (req, res): Promise<any> => {
 
 // reselects main profile
 
-router.put('/update/main/:id', auth, async (req, res): Promise<any> => {
+router.put('/update/main', auth, async (req, res): Promise<any> => {
   // console.log('entered select as main');
 
-  const { id } = req.params;
+  const { id } = req.body;
   const token = req.cookies.token;
 
   // console.log('smain id: ', id);
@@ -326,7 +335,7 @@ router.put('/update/main/:id', auth, async (req, res): Promise<any> => {
         data: { mainProfileId: id },
       });
       return res.status(200).json({ message: 'Main profile updated successfully', redirectUrl: '/profiles/myprofile' });
-    }    
+    }
     // return res.status(201).json({ profile, redirectUrl: '/profiles/myprofiles' });
   } catch (error) {
     console.error('Error setting main profile:', error);
@@ -368,12 +377,53 @@ router.put('/update/current/:id', auth, async (req, res): Promise<any> => {
       await prisma.users.update({
         where: { id: userId },
         data: { currentProfileId: id },
+        
       });
+      const settingsCookie = req.cookies.settings;
+      let settings = settingsCookie ? JSON.parse(settingsCookie) : {};
+      settings.userName = userExists.username; // Update the userName field with the current username
+
+      res.cookie('settings', JSON.stringify(settings), {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 3600 * 10000,
+      });
+
       return res.status(200).json({ message: 'Profile selected as current successfully', redirectUrl: '/profiles/myprofiles' });
-    }    
+    }
     // return res.status(201).json({ profile, redirectUrl: '/profiles/myprofiles' });
   } catch (error) {
     console.error('Error setting main profile:', error);
+    return res.status(500).json({ error });
+  }
+});
+
+router.put('/edit', auth, async (req, res): Promise<any> => {
+  console.log('entered edit profile');
+  // const { id } = req.params;
+  const { profileId, content } = req.body;
+  console.log('id: ', profileId, ', content: ', content);
+
+  try {
+
+    const profileExists = await prisma.posts.findUnique({
+      where: { id: profileId },
+    });
+
+    if (!profileExists) {
+      console.log('profile doesn\'t exist');
+      return res.status(404).json({ error: 'profile not found' });
+    } else {
+      console.log('profile exists');
+      await prisma.profile.update({
+        where: { id: profileId },
+        data: { content: content },
+      });
+      return res.status(200).json({ message: 'Profile updated successfully', redirectUrl: '/profiles/myprofile' });
+    }
+  } catch (error) {
+    console.error('Error deleting profile:', error);
     return res.status(500).json({ error });
   }
 });

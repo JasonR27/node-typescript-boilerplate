@@ -1,17 +1,11 @@
-
-
-// import express from 'express';
 import express, { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import bodyParser from 'body-parser';
 import * as dotenv from 'dotenv';
-// import session from 'express-session';
 import { auth } from '../middleware/auth';
-// import cookie from 'cookie';
 import cookieParser from 'cookie-parser';
-// import cors from 'cors';
 
 dotenv.config();
 
@@ -40,28 +34,47 @@ if (!SECRET_KEY) {
 
 
 router.post('/login', async (req, res): Promise<any> => {
-  
+
   console.log('Entered login endpoint');
   const { email, password } = req.body;
   // console.log('email: ', email);
 
-  const user = await prisma.users.findUnique({ where: { email: email } });
 
-  if (user && await bcrypt.compare(password, user.passwordHash)) {
-    // Ensure the user ID is unique
-    // const generatedSecret = generateSecret();
-    // console.log('process.env.SUPABASE_JWT_SECRET: ', process.env.SUPABASE_JWT_SECRET);
-    const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
+  try {
+    const user = await prisma.users.findUnique({ where: { email: email } });
 
-    if (token) {
-      console.log('Generated token for user ID:', user.id);
-      console.log('token: ', token);
-    }
-    console.log('after token sing in lines');
+    if (user && await bcrypt.compare(password, user.passwordHash)) {
+      // Ensure the user ID is unique
+      // const generatedSecret = generateSecret();
+      // console.log('process.env.SUPABASE_JWT_SECRET: ', process.env.SUPABASE_JWT_SECRET);
+      const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
 
-    try {
+      if (token) {
+        console.log('Generated token for user ID:', user.id);
+        console.log('token: ', token);
+      }
+      console.log('after token sing in lines');
 
       console.log('New session generated succesfully:');
+
+      // const username = await prisma.users.findUnique({
+      //   where: { email: email },
+      //   select: { username: true },
+      // });
+
+      const userName = user.userName;
+
+      let settings: SettingsProps = {
+        userName: userName,
+        theme: 'dark',
+      }
+
+      res.cookie('settings', settings, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 3600 * 10000,
+      });
 
       res.cookie('token', token, {
         httpOnly: true,
@@ -69,25 +82,24 @@ router.post('/login', async (req, res): Promise<any> => {
         sameSite: 'strict',
         maxAge: 3600 * 10000, // 1 hour in milliseconds
       }).send({ user: { id: user.id, email: user.email, role: user.role }, redirectUrl: '/myprofiles' });
-
       // }
-
-    } catch (error) {
-      console.error('Error during login:', error);
-      return res.status(500).json({ error: 'An error occurred while logging in.' });
+    } else {
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
-
-    // res.json({
-    //   message: 'Login successful',
-    //   user: { id: user.id, email: user.email, role: user.role },
-    //   redirectUrl: '/myprofiles',
-    // });
-    
-    // console.log('New token assigned successfully');
-
-  } else {
-    return res.status(401).json({ error: 'Invalid credentials' });
+  } catch (error: any) {
+    console.error('Error during login:', error.message);
+    return res.status(500).json({ error: 'An error occurred while logging in.' });
   }
+
+  // res.json({
+  //   message: 'Login successful',
+  //   user: { id: user.id, email: user.email, role: user.role },
+  //   redirectUrl: '/myprofiles',
+  // });
+
+  // console.log('New token assigned successfully');
+
+
 });
 
 router.post('/logout', auth, async (req, res): Promise<any> => {
@@ -134,7 +146,7 @@ router.get('/userinfo', auth, async (req: Request, res: Response) => {
   const user = await prisma.users.findUnique({ where: { id: userId } });
 
   res.json({ user: { email: user?.email, name: user?.name, username: user?.username } });
-  
+
 });
 
 

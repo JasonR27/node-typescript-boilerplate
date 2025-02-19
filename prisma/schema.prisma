@@ -13,9 +13,10 @@ model Users {
   id               String     @id @default(uuid())
   name             String
   email            String     @unique
-  username         String     @unique
+  userName         String     @unique
   passwordHash     String
   role             String
+  theme            String?
   mainProfileId    String?    @unique
   mainProfile      Profiles?  @relation(fields: [mainProfileId], references: [id], name: "MainProfile")
   currentProfileId String?    @unique
@@ -24,7 +25,6 @@ model Users {
   comments         Comments[]
   likes            Likes[]
   profiles         Profiles[] @relation(name: "UserProfiles")
-
   @@schema("auth")
 }
 
@@ -33,7 +33,7 @@ model Profiles {
   createdAt            DateTime   @default(now())
   updatedAt            DateTime   @updatedAt
   userId               String
-  username             String
+  userName             String
   website              String
   company              String
   authorEmail          String
@@ -56,13 +56,25 @@ model Profiles {
   ProfileFrs  Profiles[] @relation(name: "ProfileFriends")
   ProfileFlBy Profiles[] @relation(name: "ProfileFollowers")
   ProfileFls  Profiles[] @relation(name: "ProfileFollowing")
-
+  
   @@schema("public")
+  Image Image[]
 }
 
 model Picture {
   id        String   @id @default(uuid())
   avatarUrl String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  profileId String   @unique
+  profile   Profiles @relation(fields: [profileId], references: [id])
+
+  @@schema("public")
+}
+
+model Image {
+  id        String   @id @default(uuid())
+  imageUrl  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   profileId String   @unique
@@ -81,6 +93,7 @@ model Posts {
   published Boolean    @default(false)
   viewCount Int
   profileId String?
+  userName String
   comments  Comments[] @relation(name: "PostComments")
   likes     Likes[]
   profile   Profiles?  @relation(fields: [profileId], references: [id])
@@ -95,18 +108,16 @@ model Comments {
   profile          Profiles?  @relation(fields: [profileId], references: [id])
   postId           String?
   commentId        String?
-  userId           String?
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
   comments         Comments[] @relation(name: "CommentComments")
-  profileName      String?
+  userName         String?
   content          String?
   img              String?
   audio            String?
   file             String?
   commentHierarchy Comments?  @relation(fields: [commentId], references: [id], name: "CommentComments")
   post             Posts?     @relation(fields: [postId], references: [id], name: "PostComments")
-  user             Users?      @relation(fields: [userId], references: [id])
   likes            Likes[]
 
   @@schema("public")

@@ -18,6 +18,6 @@ EXPOSE 8080
 EXPOSE 3030 
 
 RUN chmod +x /app/entrypoint.sh
-ENTRYPOINT ["/bin/bash", "/app/entrypoint.sh"] 
+# ENTRYPOINT ["/bin/bash", "/app/entrypoint.sh"] 
 
 # RUN npm install -g serve

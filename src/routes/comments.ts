@@ -72,7 +72,8 @@ router.get('/comment/:id', auth, async (req: Request, res: Response, next: NextF
 
 router.post('/create', auth, async (req, res) => {
   console.log('entered comments create endpoint');
-  const { postId, content, img, audio, file } = req.body;
+  const { postId, content, img, audio, file, profileName } = req.body;
+  console.log('postId: ', postId);
   console.log('content: ', content);
   const token = req.cookies.token;
 
@@ -85,10 +86,26 @@ router.post('/create', auth, async (req, res) => {
     userId = decoded.id;
   });
 
+  // const user = await prisma.users.findUnique({
+  //   where: {
+  //     id: userId
+  //   }  
+  // })
+
+  // const currentProfile
+
+  // const profile = await prisma.profiles.findUnique({
+  //   where: {
+  //     id:  
+  //   }  
+  
+  // })
+
   try {
     const comment = await prisma.comments.create({
       data: {
-        content,
+        content: content,
+        profileName: profileName,
         post: { connect: { id: postId } },
         user: { connect: { id: userId } },
       },
